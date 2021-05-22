@@ -1,28 +1,37 @@
 import { allLocations } from "../views/location.js"
-import { allcharacters } from "../views/characters.js"
+import { characters } from "../views/characters.js"
 import { home } from "../views/home.js"
 
-export const req = new XMLHttpRequest()
+const container = document.getElementById("container-characters")
+const dropDown = document.getElementById("dropDown")
+const containerLocat = document.getElementById("container-location")
+const title = document.getElementById("title")
+const list = document.getElementById("list")
 
-export const container = document.getElementById("container-characters")
-export const containerLocat = document.getElementById("container-location")
-export const title = document.getElementById("title")
+const homePage = document.getElementById("homePage")
+const asideBar = document.getElementById("asideBar")
 
-export const menu = document.getElementById("open")
-export const close = document.getElementById("closer")
-export const asideBar = document.getElementById("asideBar")
-const overlay = document.getElementById("overlay")
+const req = new XMLHttpRequest()
+
+//click en el logo nos redirecciona a la página principal.
+const logo = document.getElementById("logo")
+logo.addEventListener("click", ()=>{ home() })
+
+//creo un objeto de la variable a utilizar en otros ficheros 
+export const elements = {
+  req: req,
+  container: container,
+  dropDown: dropDown,
+  containerLocat: containerLocat,
+  title: title,
+  asideBar: asideBar,
+  list: list,
+  homePage: homePage
+}
 
 home()
-menu.addEventListener("click", ()=>{
-  asideBar.classList.add("open-menu")
-  overlay.style.display = "block"
-})
-close.addEventListener("click", ()=>{
-  asideBar.classList.remove("open-menu")
-  overlay.style.display = "none"
-})
 
+//evento que detecta el cambio de dirección
 window.addEventListener("hashchange", ()=>{ valid(window.location.hash)})
 
 function valid(url){
@@ -33,11 +42,8 @@ function valid(url){
     case "#/location":
       allLocations()
       break;
-    case "#/episode":
-      //allUrl()
-      break;
     case "#/characters":
-      allcharacters()
+      characters()
       break;
     default:
       console.log("something went wrong")

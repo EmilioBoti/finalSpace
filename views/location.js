@@ -1,43 +1,90 @@
-import { container, containerLocat, asideBar, title } from "../js/main.js"
+import { elements } from "../js/main.js"
 
-const req = new XMLHttpRequest()
+const url = "https://finalspaceapi.com/api/v0/location/"
+
+export function getInhabitants(arrayInhabitans){
+  
+  let inhabitants = ""
+  if(arrayInhabitans.length > 0){
+    inhabitants = arrayInhabitans.reduce((b, a)=>{ return b +", "+a })
+  }
+
+  if(inhabitants === undefined || inhabitants === "") inhabitants = "Unknown"
+
+  return inhabitants
+}
 
 export function allLocations(){
 
-  asideBar.classList.remove("open-menu")
-  document.body.classList.remove("bgHome")
+  window.location.hash = "#/description"
+  elements.container.innerHTML = ""
+  elements.list.innerHTML = ""
+  elements.homePage.innerHTML = ""
+  elements.dropDown.innerHTML = ""
+  elements.title.innerHTML = "LOCATIONS"
 
-  req.onreadystatechange = location
-  req.open("GET", `https://finalspaceapi.com/api/v0/location/`)
-  req.send()
+  const selectPlanet = document.createElement("select")
+  selectPlanet.id = "status"
+  selectPlanet.name = "status"
+  
+  const optionPlanet = document.createElement("option")
+  optionPlanet.value = ""
+  optionPlanet.innerHTML = "Planet"
+  selectPlanet.appendChild(optionPlanet)
+  elements.dropDown.appendChild(selectPlanet)
 
+  elements.req.onreadystatechange = location
+  elements.req.open("GET", url)
+  elements.req.send()
+
+  
   function location(){
     if(this.readyState === 4 && this.status === 200){
       const dataLocation = JSON.parse(this.responseText)
-        
-      container.innerHTML = ""
-      title.innerHTML = "LOCATIONS"
       
       dataLocation.forEach(e => {
+        const opt = document.createElement("option")
+          opt.value = e.id
+          opt.innerHTML = e.name
+          selectPlanet.appendChild(opt)
+      })      
+    }
+    selectPlanet.addEventListener("change", (e)=>{
+      const id  = e.target.value
+      if(id !== ""){ locationDetails(id) }     
+    })
+  }
+}
+function locationDetails(id){
 
-        const arrayInhabitans = e.inhabitants
-        let inhabitants
-        if(arrayInhabitans.length > 0){
-          inhabitants = arrayInhabitans.reduce((b, a)=>{ return b +", "+a })
-        }
+  elements.req.onreadystatechange = getLocation
+  elements.req.open("GET", `${url}${id}`)
+  elements.req.send()
 
-        if(inhabitants === undefined) inhabitants = "Unknow"
 
-        const box = document.createElement("div")
-        box.innerHTML =    `
-          <article class = "cards">
-            <img src ="${e.img_url}">
-            <p>${e.name}</p>
-            <p><strong>Inhabitants by:</strong><small>${inhabitants}</small></p>
+  function getLocation(){
+    if(this.readyState === 4 && this.status === 200){
+      const location = JSON.parse(this.responseText)
+      console.log(location)
+
+      
+      const arrayInhabitans = location.inhabitants
+      let inhabitants = getInhabitants(arrayInhabitans)
+      console.log(inhabitants)
+
+      const box =   `
+        <section class= "descri">
+          <article class = "description">
+              <h3 class = "descrItems">Name: ${location.name}</h3>
+              <p class = "descrItems"><span>Type:</span> ${location.type}</p>
+              <p class = "descrItems"><span>Inhabitants:</span> ${inhabitants}</p>
           </article>
-        ` 
-        containerLocat.appendChild(box)
-      });
+          <div class = "boxImg">
+            <img src ="${location.img_url}">
+          </div>
+        </section>
+      `
+      elements.container.innerHTML = box
     }
   }
 }

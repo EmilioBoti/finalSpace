@@ -1,22 +1,26 @@
-import { container,containerLocat, req, asideBar, title } from "../js/main.js"
+import { elements } from "../js/main.js"
+import { getInhabitants } from "./location.js"
 
 export function charactersDetails(charcId){
 
-    containerLocat.innerHTML = ""
-    title.innerHTML = ""
-    asideBar.classList.remove("open-menu")
-    document.body.classList.remove("bgHome")
+  //limpiado pantalla
+  elements.container.innerHTML = ""
+  window.location.hash = "#/description"
 
-    req.onreadystatechange = getDetail
-    req.open("GET", `https://finalspaceapi.com/api/v0/character/${charcId}`)
-    req.send()
+  //hacemos una petición de un persnaje seleccionado.
+  elements.req.onreadystatechange = getDetail
+  elements.req.open("GET", `https://finalspaceapi.com/api/v0/character/${charcId}`)
+  elements.req.send()
   
   function getDetail(){
       
     if(this.readyState === 4 && this.status === 200){
       const characterDetail = JSON.parse(this.responseText)
-      console.log(characterDetail)
       
+      //obtenenor un string con las abilidades de los personajes atraves de la función
+      let abilities =  getInhabitants(characterDetail.abilities)
+      
+      //temple
       const box = `
         <section class= "descri">
           <article class = "description">
@@ -26,14 +30,14 @@ export function charactersDetails(charcId){
               <p class = "descrItems"><span>Gender:</span> ${characterDetail.gender}</p>
               <p class = "descrItems"><span>Species:</span> ${characterDetail.species}</p>
               <p class = "descrItems"><span>Origin:</span> ${characterDetail.origin}</p>
-              <p class = "descrItems"><span>Abilities:</span> ${characterDetail.abilities[0]}</p>
+              <p class = "descrItems"><span>Abilities:</span> ${abilities}</p>
           </article>
           <div class = "boxImg">
             <img src ="${characterDetail.img_url}">
           </div>
         </section>
       `
-      container.innerHTML = box
+      elements.container.innerHTML = box
     }  
   }
 }
